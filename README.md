@@ -65,8 +65,8 @@ Müasir və tamfunksiyalı ev heyvanları mağazası (Pet Shop) eCommerce veb t�
 
 1. Repozitoriyanı klonlayın:
    ```bash
-   git clone https://github.com/shahinjk-cpu/PetShopApp.git
-   cd PetShopApp
+   git clone https://github.com/shahinjk-cpu/MiniProject.git
+   cd MiniProject
    ```
 
 2. Layihə asılılıqlarını bərpa edin:
