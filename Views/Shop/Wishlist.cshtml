@@ -1,0 +1,79 @@
+﻿@model List<PetShopApp.Models.Product>
+@{
+    ViewData["Title"] = "My Wishlist";
+}
+
+<section id="banner" class="py-3" style="background: #F9F3EC;">
+  <div class="container">
+    <div class="hero-content py-5 my-3">
+      <h2 class="display-1 mt-3 mb-0">Wishlist</h2>
+      <nav class="breadcrumb">
+        <a class="breadcrumb-item nav-link" asp-controller="Home" asp-action="Index">Home</a>
+        <a class="breadcrumb-item nav-link" asp-controller="Shop" asp-action="Index">Shop</a>
+        <span class="breadcrumb-item active" aria-current="page">Wishlist</span>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<div class="container py-5 my-5">
+  @if (!Model.Any())
+  {
+    <div class="text-center py-5">
+      <iconify-icon icon="fluent:heart-broken-24-regular" class="fs-1 text-muted mb-3"></iconify-icon>
+      <h3 class="fw-normal text-muted">Your wishlist is currently empty.</h3>
+      <p class="text-muted">Explore our shop and save items you love!</p>
+      <a asp-action="Index" class="btn btn-primary mt-2">Explore Products</a>
+    </div>
+  }
+  else
+  {
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col" class="py-3">Product</th>
+            <th scope="col" class="py-3">Price</th>
+            <th scope="col" class="py-3">Stock Status</th>
+            <th scope="col" class="py-3 text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var item in Model)
+          {
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <img src="~/images/@item.MainImageUrl" alt="@item.Name" class="rounded border" style="width: 70px; height: 70px; object-fit: cover;" />
+                  <div>
+                    <a asp-action="Detail" asp-route-slug="@item.Slug" class="text-decoration-none text-dark fw-bold">@item.Name</a>
+                    <div class="text-muted small">Category: @item.Category?.Name</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="fs-5 text-primary fw-bold">$@item.Price.ToString("F2")</span>
+              </td>
+              <td>
+                @if (item.StockQuantity > 0)
+                {
+                  <span class="badge bg-success">In Stock (@item.StockQuantity)</span>
+                }
+                else
+                {
+                  <span class="badge bg-danger">Out of Stock</span>
+                }
+              </td>
+              <td class="text-end">
+                <a asp-controller="Cart" asp-action="AddToCart" asp-route-productId="@item.Id" class="btn btn-dark btn-sm me-2">Add to Cart</a>
+                <a asp-action="RemoveFromWishlist" asp-route-productId="@item.Id" class="btn btn-outline-danger btn-sm" title="Remove">
+                  <iconify-icon icon="solar:trash-bin-trash-bold" class="fs-5"></iconify-icon>
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

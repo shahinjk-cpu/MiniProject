@@ -1,0 +1,155 @@
+﻿@model List<PetShopApp.Models.CartItem>
+@{
+    ViewData["Title"] = "Shopping Cart";
+    var subtotal = Model.Sum(i => i.TotalPrice);
+    var shipping = subtotal > 50 || subtotal == 0 ? 0m : 10.00m;
+    var grandTotal = subtotal + shipping;
+}
+
+<!-- Banner / Breadcrumb -->
+<section id="banner" class="py-3" style="background: #F9F3EC;">
+  <div class="container">
+    <div class="hero-content py-5 my-3">
+      <h2 class="display-1 mt-3 mb-0">Cart</h2>
+      <nav class="breadcrumb">
+        <a class="breadcrumb-item nav-link" asp-controller="Home" asp-action="Index">Home</a>
+        <a class="breadcrumb-item nav-link" asp-controller="Shop" asp-action="Index">Shop</a>
+        <span class="breadcrumb-item active" aria-current="page">Cart</span>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<!-- Cart Section -->
+<section id="cart" class="my-5 py-5">
+  <div class="container">
+    @if (!Model.Any())
+    {
+      <div class="text-center py-5">
+        <iconify-icon icon="solar:cart-large-minimalistic-broken" class="fs-1 text-muted mb-3" style="font-size: 5rem;"></iconify-icon>
+        <h2 class="display-6 fw-normal text-muted">Your Shopping Cart is Empty</h2>
+        <p class="text-muted fs-5">You haven't added any products to your cart yet.</p>
+        <a asp-controller="Shop" asp-action="Index" class="btn btn-primary btn-lg mt-3 px-5 py-3 text-uppercase">Start Shopping</a>
+      </div>
+    }
+    else
+    {
+      <div class="row g-md-5">
+        <div class="col-md-8 pe-md-5">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr class="border-bottom">
+                  <th scope="col" class="card-title text-uppercase py-3">Product</th>
+                  <th scope="col" class="card-title text-uppercase py-3 text-center">Quantity</th>
+                  <th scope="col" class="card-title text-uppercase py-3 text-end">Subtotal</th>
+                  <th scope="col" class="card-title text-uppercase py-3 text-end"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var item in Model)
+                {
+                  <tr class="border-bottom">
+                    <td scope="row" class="py-4">
+                      <div class="cart-info d-flex align-items-center gap-3">
+                        <img src="~/images/@item.ImageUrl" alt="@item.ProductName" class="img-fluid rounded border" style="width: 75px; height: 75px; object-fit: cover;">
+                        <div class="card-detail">
+                          <h5 class="card-title m-0">
+                            <a asp-controller="Shop" asp-action="Detail" asp-route-id="@item.ProductId" class="text-decoration-none text-dark fw-bold">@item.ProductName</a>
+                          </h5>
+                          <span class="text-muted small">$@item.Price.ToString("F2") each</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-4 align-middle text-center">
+                      <form asp-action="UpdateQuantity" method="post" class="d-inline-flex align-items-center justify-content-center">
+                        <input type="hidden" name="productId" value="@item.ProductId" />
+                        <div class="input-group product-qty align-items-center" style="max-width: 130px;">
+                          <button type="submit" name="quantity" value="@(item.Quantity - 1)" class="btn btn-light border btn-number px-2 py-1">
+                            <svg width="14" height="14"><use xlink:href="#minus"></use></svg>
+                          </button>
+                          <input type="text" class="form-control text-center p-1 border mx-1" value="@item.Quantity" readonly style="width: 40px;" />
+                          <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="btn btn-light border btn-number px-2 py-1">
+                            <svg width="14" height="14"><use xlink:href="#plus"></use></svg>
+                          </button>
+                        </div>
+                      </form>
+                    </td>
+                    <td class="py-4 align-middle text-end">
+                      <span class="secondary-font fw-bold fs-5 text-primary">$@item.TotalPrice.ToString("F2")</span>
+                    </td>
+                    <td class="py-4 align-middle text-end">
+                      <a asp-action="RemoveItem" asp-route-productId="@item.ProductId" class="text-danger p-2" title="Remove Item">
+                        <svg width="20" height="20">
+                          <use xlink:href="#trash"></use>
+                        </svg>
+                      </a>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-4">
+            <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-dark text-uppercase px-4 py-2">
+              <i class="bi bi-arrow-left"></i> Continue Shopping
+            </a>
+            <a asp-action="Clear" class="btn btn-outline-danger text-uppercase px-4 py-2" onclick="return confirm('Are you sure you want to clear your entire cart?');">
+              Clear Cart
+            </a>
+          </div>
+        </div>
+
+        <!-- Totals Column -->
+        <div class="col-md-4 mt-5 mt-md-0">
+          <div class="cart-totals bg-light p-4 rounded-4 shadow-sm">
+            <h3 class="pb-3 border-bottom fw-bold">Cart Totals</h3>
+            <div class="total-price pb-3">
+              <table cellspacing="0" class="table text-uppercase bg-transparent">
+                <tbody>
+                  <tr class="subtotal py-2">
+                    <th class="border-0">Subtotal</th>
+                    <td class="border-0 text-end">
+                      <strong class="text-dark fs-5">$@subtotal.ToString("F2")</strong>
+                    </td>
+                  </tr>
+                  <tr class="shipping py-2">
+                    <th class="border-0">Shipping</th>
+                    <td class="border-0 text-end">
+                      @if (shipping == 0)
+                      {
+                        <span class="badge bg-success">FREE</span>
+                      }
+                      else
+                      {
+                        <span class="text-dark fs-6">$@shipping.ToString("F2")</span>
+                      }
+                    </td>
+                  </tr>
+                  <tr class="order-total border-top border-bottom py-3">
+                    <th class="fs-5 text-dark">Total</th>
+                    <td class="text-end">
+                      <strong class="price-amount text-primary fs-3 fw-bold">$@grandTotal.ToString("F2")</strong>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="button-wrap d-grid gap-2">
+              <a asp-controller="Checkout" asp-action="Index" class="btn btn-primary btn-lg p-3 text-uppercase rounded-2 fw-bold">
+                Proceed to Checkout
+              </a>
+            </div>
+
+            <div class="mt-4 p-3 bg-white rounded-3 border">
+              <small class="text-muted d-block mb-1"><iconify-icon icon="la:shield-alt" class="text-success me-1"></iconify-icon> <strong>100% Safe & Secure Checkout</strong></small>
+              <small class="text-muted d-block"><iconify-icon icon="la:shipping-fast" class="text-primary me-1"></iconify-icon> Free shipping on orders over $50!</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

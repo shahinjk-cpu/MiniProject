@@ -1,0 +1,123 @@
+﻿@model PetShopApp.Models.Order
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<!-- Banner / Breadcrumb -->
+<section id="banner" class="py-3" style="background: #F9F3EC;">
+  <div class="container py-5 my-3">
+    <div class="hero-content py-5 my-3 text-center">
+      <iconify-icon icon="clarity:success-standard-solid" class="text-success display-1 mb-3"></iconify-icon>
+      <h1 class="display-3 fw-bold mt-2 mb-2">Thank You for Your Order!</h1>
+      <p class="fs-4 text-muted">Your order has been successfully placed and is now being processed.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Order Details Section -->
+<section id="thank-you" class="py-5 my-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
+
+          <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-4 mb-4">
+            <div>
+              <span class="text-muted text-uppercase small d-block">Order Reference:</span>
+              <h3 class="text-primary fw-bold m-0">@Model.OrderCode</h3>
+            </div>
+            <div>
+              <span class="badge bg-warning-subtle text-dark fs-6 px-3 py-2">Status: @Model.Status</span>
+            </div>
+          </div>
+
+          <div class="row g-4 mb-4">
+            <div class="col-sm-6">
+              <h5 class="fw-bold mb-2">Delivery Address:</h5>
+              <p class="text-secondary mb-0">
+                <strong>@Model.FirstName @Model.LastName</strong><br>
+                @Model.AddressLine1<br>
+                @if (!string.IsNullOrEmpty(Model.AddressLine2))
+                {
+                  <span>@Model.AddressLine2<br></span>
+                }
+                @Model.City, @Model.PostalCode<br>
+                Phone: @Model.Phone<br>
+                Email: @Model.Email
+              </p>
+            </div>
+            <div class="col-sm-6">
+              <h5 class="fw-bold mb-2">Payment Details:</h5>
+              <p class="text-secondary mb-0">
+                <strong>Method:</strong> @Model.PaymentMethod<br>
+                <strong>Date:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")<br>
+                <strong>Total Amount:</strong> <span class="text-primary fw-bold fs-5">$@Model.TotalAmount.ToString("F2")</span>
+              </p>
+            </div>
+          </div>
+
+          <h5 class="fw-bold mb-3 border-top pt-4">Items in Your Order:</h5>
+          <div class="table-responsive mb-4">
+            <table class="table align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Product</th>
+                  <th class="text-center">Quantity</th>
+                  <th class="text-end">Price</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-3">
+                        <img src="~/images/@item.ProductThumbnail" alt="@item.ProductName" class="rounded border" style="width: 50px; height: 50px; object-fit: cover;" />
+                        <span class="fw-bold">@item.ProductName</span>
+                      </div>
+                    </td>
+                    <td class="text-center">@item.Quantity</td>
+                    <td class="text-end">$@item.UnitPrice.ToString("F2")</td>
+                    <td class="text-end fw-bold">$@item.TotalPrice.ToString("F2")</td>
+                  </tr>
+                }
+                <tr>
+                  <td colspan="3" class="text-end fw-bold">Subtotal:</td>
+                  <td class="text-end fw-bold">$@Model.SubTotal.ToString("F2")</td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="text-end fw-bold">Shipping:</td>
+                  <td class="text-end">
+                    @if (Model.ShippingFee == 0)
+                    {
+                      <span class="badge bg-success">FREE</span>
+                    }
+                    else
+                    {
+                      <span>$@Model.ShippingFee.ToString("F2")</span>
+                    }
+                  </td>
+                </tr>
+                <tr class="table-light">
+                  <td colspan="3" class="text-end fs-5 fw-bold">Grand Total:</td>
+                  <td class="text-end fs-5 text-primary fw-bold">$@Model.TotalAmount.ToString("F2")</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="text-center mt-4 d-flex justify-content-center gap-3">
+            <a asp-controller="Shop" asp-action="Index" class="btn btn-primary btn-lg px-4 py-3 text-uppercase fw-bold">
+              Continue Shopping
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-dark btn-lg px-4 py-3 text-uppercase">
+              Return Home
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

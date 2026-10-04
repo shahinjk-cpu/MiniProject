@@ -1,0 +1,219 @@
+﻿@model PetShopApp.ViewModels.BlogDetailVM
+@{
+    ViewData["Title"] = Model.Post.Title;
+}
+
+<section id="banner" class="py-3" style="background: #F9F3EC;">
+    <div class="container">
+        <div class="hero-content py-5 my-3">
+            <h2 class="display-1 mt-3 mb-0">Single <span class="text-primary">Post</span></h2>
+            <nav class="breadcrumb">
+                <a class="breadcrumb-item nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                <a class="breadcrumb-item nav-link" asp-controller="Blog" asp-action="Index">Blog</a>
+                <span class="breadcrumb-item active" aria-current="page">@Model.Post.Title</span>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="mt-4">
+            <div class="post-meta mb-2">
+                <span class="badge bg-primary text-white rounded-pill px-3 py-2">@Model.Post.CategoryName</span> 
+                <span class="text-muted ms-3"><iconify-icon icon="mdi:calendar"></iconify-icon> @Model.Post.CreatedAt.ToString("MMM dd, yyyy")</span>
+                <span class="text-muted ms-3"><iconify-icon icon="mdi:account"></iconify-icon> @Model.Post.AuthorName</span>
+                <span class="text-muted ms-3"><iconify-icon icon="mdi:eye-outline"></iconify-icon> @Model.Post.ViewCount views</span>
+            </div>
+            <h1 class="page-title display-4 fw-bold text-dark mb-4">@Model.Post.Title</h1>
+        </div>
+    </div>
+</section>
+
+<div class="pb-5">
+    <div class="container">
+        <div class="row">
+            <main class="post-grid col-lg-12">
+                <article class="post-item">
+                    <div class="post-content">
+                        <div class="post-thumbnail mb-5 text-center">
+                            <img src="~/@Model.Post.ImageUrl" alt="@Model.Post.Title" class="img-fluid rounded-4 shadow-sm w-100" style="max-height: 550px; object-fit: cover;">
+                        </div>
+                        <div class="post-description py-3 fs-5" style="line-height: 1.8; color: #4a4a4a;">
+                            <p class="lead fw-bold text-dark">
+                                @Model.Post.ShortDescription
+                            </p>
+
+                            <div class="my-4">
+                                @Html.Raw(Model.Post.Content)
+                            </div>
+
+                            <blockquote class="p-4 my-4 border-start border-primary border-4 bg-light rounded-end-3 fs-4 fst-italic">
+                                “A pet is an island of certainty in a world of turmoil. Taking proper care of your animals reflects back love and unconditional devotion.”
+                            </blockquote>
+
+                            <div class="post-tags mt-5 border-top pt-4">
+                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                    <strong class="me-3 text-dark">Tags:</strong>
+                                    <a asp-action="Index" asp-route-category="Pets" class="btn btn-sm btn-outline-dark rounded-pill px-3">#Pets</a>
+                                    <a asp-action="Index" asp-route-category="Care" class="btn btn-sm btn-outline-dark rounded-pill px-3">#PetCare</a>
+                                    <a asp-action="Index" asp-route-category="Health" class="btn btn-sm btn-outline-dark rounded-pill px-3">#HealthyAnimals</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Previous / Next post navigation -->
+                        <div id="single-post-navigation" class="my-5 py-4 border-top border-bottom">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                @if (Model.PreviousPost != null)
+                                {
+                                    <a asp-action="Detail" asp-route-id="@Model.PreviousPost.Id" asp-route-slug="@Model.PreviousPost.Slug" class="text-decoration-none text-dark">
+                                        <div class="small text-muted">&larr; Previous Post</div>
+                                        <div class="fw-bold">@Model.PreviousPost.Title</div>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <div></div>
+                                }
+
+                                @if (Model.NextPost != null)
+                                {
+                                    <a asp-action="Detail" asp-route-id="@Model.NextPost.Id" asp-route-slug="@Model.NextPost.Slug" class="text-decoration-none text-dark text-end">
+                                        <div class="small text-muted">Next Post &rarr;</div>
+                                        <div class="fw-bold">@Model.NextPost.Title</div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </article>
+
+                <!-- Comments section -->
+                <section id="post-comment" class="mt-5">
+                    <div class="comments-wrap">
+                        <h2 class="display-6 fw-normal text-dark mb-4">
+                            <span class="count">@Model.Post.Comments.Count</span> Comments
+                        </h2>
+
+                        @if (TempData["CommentSuccess"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show rounded-4" role="alert">
+                                <iconify-icon icon="mdi:check-circle" class="me-2 fs-5"></iconify-icon>
+                                @TempData["CommentSuccess"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+                        @if (TempData["CommentError"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show rounded-4" role="alert">
+                                <iconify-icon icon="mdi:alert-circle" class="me-2 fs-5"></iconify-icon>
+                                @TempData["CommentError"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <div class="comment-list my-4">
+                            @if (!Model.Post.Comments.Any())
+                            {
+                                <p class="text-muted fst-italic py-3">There are no comments yet. Be the first to share your thoughts!</p>
+                            }
+                            else
+                            {
+                                @foreach (var comment in Model.Post.Comments)
+                                {
+                                    <article class="comment-item d-flex p-4 mb-3 bg-light rounded-4">
+                                        <div class="me-3 flex-shrink-0">
+                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                                @comment.AuthorName.Substring(0, 1).ToUpper()
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="comment-meta d-flex justify-content-between align-items-center mb-2">
+                                                <h5 class="author-name text-dark m-0 fw-bold">@comment.AuthorName</h5>
+                                                <span class="meta-date text-muted small">@comment.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                            </div>
+                                            <p class="m-0 text-secondary">@comment.Content</p>
+                                        </div>
+                                    </article>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Leave a comment form -->
+                    <div class="comment-respond pt-4 mt-5 border-top">
+                        <h2 class="display-6 fw-normal text-dark mb-4">Leave a Comment</h2>
+
+                        <form asp-action="AddComment" method="post" class="form-group">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="blogPostId" value="@Model.Post.Id" />
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Your Name *</label>
+                                    <input type="text" name="authorName" placeholder="Enter your full name" class="form-control form-control-lg rounded-3" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Your Email *</label>
+                                    <input type="email" name="email" placeholder="Enter your email" class="form-control form-control-lg rounded-3" required />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted">Website (Optional)</label>
+                                <input type="url" name="website" placeholder="https://example.com" class="form-control form-control-lg rounded-3" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold small text-muted">Comment Message *</label>
+                                <textarea name="content" placeholder="Share your insights..." class="form-control form-control-lg rounded-3" rows="5" required></textarea>
+                            </div>
+
+                            <div>
+                                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5">Submit Comment</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+</div>
+
+@if (Model.RecentPosts.Any())
+{
+    <section id="latest-blog" class="py-5" style="background: #F9F3EC;">
+        <div class="container py-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="display-4 fw-normal text-dark m-0">Recent Blog Posts</h2>
+                <a asp-action="Index" class="btn btn-outline-dark rounded-pill px-4">Read All &rarr;</a>
+            </div>
+            <div class="row">
+                @foreach (var rPost in Model.RecentPosts)
+                {
+                    <div class="col-md-4 my-3">
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 bg-white">
+                            <a asp-action="Detail" asp-route-id="@rPost.Id" asp-route-slug="@rPost.Slug">
+                                <img src="~/@rPost.ImageUrl" class="img-fluid w-100" style="height: 200px; object-fit: cover;" alt="@rPost.Title">
+                            </a>
+                            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="text-muted small mb-2">@rPost.CreatedAt.ToString("MMM dd, yyyy")</div>
+                                    <a asp-action="Detail" asp-route-id="@rPost.Id" asp-route-slug="@rPost.Slug" class="text-decoration-none">
+                                        <h5 class="card-title text-dark fw-bold" style="line-height: 1.4;">@rPost.Title</h5>
+                                    </a>
+                                </div>
+                                <div class="mt-3">
+                                    <a asp-action="Detail" asp-route-id="@rPost.Id" asp-route-slug="@rPost.Slug" class="text-primary fw-bold text-decoration-none small">Read More &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}

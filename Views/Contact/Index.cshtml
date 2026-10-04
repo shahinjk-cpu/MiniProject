@@ -1,0 +1,124 @@
+﻿@model PetShopApp.Models.ContactMessage
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<section id="banner" class="py-3" style="background: #F9F3EC;">
+    <div class="container">
+        <div class="hero-content py-5 my-3">
+            <h2 class="display-1 mt-3 mb-0">Contact <span class="text-primary">Us</span></h2>
+            <nav class="breadcrumb">
+                <a class="breadcrumb-item nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                <span class="breadcrumb-item active" aria-current="page">Contact</span>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="contact-us py-5">
+    <div class="container py-4">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show rounded-4 p-4 shadow-sm mb-5" role="alert">
+                <div class="d-flex align-items-center">
+                    <iconify-icon icon="mdi:check-circle" class="text-success fs-1 me-3"></iconify-icon>
+                    <div>
+                        <h4 class="alert-heading m-0 fw-bold">Uğurlu göndəriş!</h4>
+                        <p class="m-0 text-muted">@TempData["SuccessMessage"]</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="row g-5">
+            <div class="contact-info col-lg-5 pb-3">
+                <h2 class="text-dark display-5 fw-bold mb-3">Contact Information</h2>
+                <p class="text-muted fs-5 mb-5">Have questions about our pet products, orders, or care services? Reach out to our friendly support team anytime.</p>
+
+                <div class="page-content">
+                    <div class="content-box text-dark mb-4 p-4 bg-light rounded-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width:45px; height:45px;">
+                                <iconify-icon icon="mdi:map-marker" class="fs-4"></iconify-icon>
+                            </div>
+                            <h4 class="card-title m-0 fw-bold">Main Store & Office</h4>
+                        </div>
+                        <p class="text-secondary m-0">@ViewBag.Address</p>
+                    </div>
+
+                    <div class="content-box text-dark mb-4 p-4 bg-light rounded-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width:45px; height:45px;">
+                                <iconify-icon icon="mdi:phone" class="fs-4"></iconify-icon>
+                            </div>
+                            <h4 class="card-title m-0 fw-bold">Phone Support</h4>
+                        </div>
+                        <p class="text-secondary m-0 mb-1">Customer Care: <strong>@ViewBag.Phone</strong></p>
+                        <p class="text-secondary m-0">Emergency Support: <strong>+123 123 654</strong></p>
+                    </div>
+
+                    <div class="content-box text-dark mb-4 p-4 bg-light rounded-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width:45px; height:45px;">
+                                <iconify-icon icon="mdi:email" class="fs-4"></iconify-icon>
+                            </div>
+                            <h4 class="card-title m-0 fw-bold">Email Inquiries</h4>
+                        </div>
+                        <p class="text-secondary m-0">@ViewBag.Email</p>
+                        <p class="text-secondary m-0">support@waggypetshop.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inquiry-item col-lg-7">
+                <div class="p-5 bg-white border rounded-5 shadow-sm">
+                    <h2 class="text-dark display-5 fw-bold mb-2">Get in Touch</h2>
+                    <p class="text-muted mb-4">Send us a message and we will respond within 24 business hours.</p>
+
+                    <form asp-action="Index" method="post" class="form-group">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FullName" class="form-label fw-bold small text-muted">Full Name *</label>
+                                <input asp-for="FullName" class="form-control form-control-lg rounded-3 ps-3" placeholder="Write Your Name Here" required />
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label fw-bold small text-muted">Email Address *</label>
+                                <input asp-for="Email" type="email" class="form-control form-control-lg rounded-3 ps-3" placeholder="Write Your Email Here" required />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Phone" class="form-label fw-bold small text-muted">Phone Number *</label>
+                                <input asp-for="Phone" class="form-control form-control-lg rounded-3 ps-3" placeholder="+994 50 123 45 67" required />
+                                <span asp-validation-for="Phone" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Subject" class="form-label fw-bold small text-muted">Subject *</label>
+                                <input asp-for="Subject" class="form-control form-control-lg rounded-3 ps-3" placeholder="Order inquiry / Question" required />
+                                <span asp-validation-for="Subject" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Message" class="form-label fw-bold small text-muted">Your Message *</label>
+                            <textarea asp-for="Message" class="form-control form-control-lg rounded-3 ps-3" style="height:160px;" placeholder="Write your questions or details here..." required></textarea>
+                            <span asp-validation-for="Message" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill py-3 fw-bold fs-5">
+                                Send Message <iconify-icon icon="mdi:send" class="ms-2"></iconify-icon>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

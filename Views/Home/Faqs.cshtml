@@ -1,0 +1,61 @@
+﻿@model IEnumerable<PetShopApp.Models.FaqItem>
+@{
+    ViewData["Title"] = "Frequently Asked Questions";
+    int index = 0;
+}
+
+<section id="banner" class="py-3" style="background: #F9F3EC;">
+    <div class="container">
+        <div class="hero-content py-5 my-3">
+            <h2 class="display-1 mt-3 mb-0">FAQ<span class="text-primary">s</span></h2>
+            <nav class="breadcrumb">
+                <a class="breadcrumb-item nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                <span class="breadcrumb-item active" aria-current="page">FAQs</span>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="faqs-wrap py-5">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-5">
+                    <span class="text-primary fw-bold text-uppercase">Help & Support</span>
+                    <h2 class="display-5 fw-bold mt-2">Frequently Asked Questions</h2>
+                    <p class="text-muted fs-5">Find answers to the most common questions regarding shipping, pet nutrition, returns, and ordering.</p>
+                </div>
+
+                <div class="accordion mb-5" id="accordionFaqs">
+                    @foreach (var faq in Model)
+                    {
+                        string collapseId = $"collapse{index}";
+                        string headingId = $"heading{index}";
+                        bool isFirst = (index == 0);
+
+                        <div class="accordion-item border mb-3 rounded-4 overflow-hidden shadow-sm">
+                            <h2 class="accordion-header" id="@headingId">
+                                <button class="accordion-button @(isFirst ? "" : "collapsed") fs-5 fw-bold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="@(isFirst ? "true" : "false")" aria-controls="@collapseId">
+                                    @faq.Question
+                                </button>
+                            </h2>
+                            <div id="@collapseId" class="accordion-collapse collapse @(isFirst ? "show" : "")" aria-labelledby="@headingId" data-bs-parent="#accordionFaqs">
+                                <div class="accordion-body secondary-font text-secondary fs-6 py-4">
+                                    @faq.Answer
+                                </div>
+                            </div>
+                        </div>
+
+                        index++;
+                    }
+                </div>
+
+                <div class="p-5 bg-light rounded-5 text-center mt-5">
+                    <h3 class="fw-bold mb-2">Still have questions?</h3>
+                    <p class="text-muted mb-4">Can't find the answer you're looking for? Please contact our team.</p>
+                    <a asp-controller="Contact" asp-action="Index" class="btn btn-primary rounded-pill px-5 py-3 fs-5">Get In Touch</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

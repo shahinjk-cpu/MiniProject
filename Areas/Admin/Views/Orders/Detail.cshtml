@@ -1,0 +1,170 @@
+﻿@model PetShopApp.Models.Order
+@{
+    ViewData["Title"] = $"Order #{Model.OrderCode}";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-3">
+            <h4 class="fw-bold text-dark m-0">Order: @Model.OrderCode</h4>
+            @switch (Model.Status)
+            {
+                case OrderStatus.Pending:
+                    <span class="badge badge-pending px-3 py-2 fs-6 rounded-pill">Pending</span>
+                    break;
+                case OrderStatus.Processing:
+                    <span class="badge badge-processing px-3 py-2 fs-6 rounded-pill">Processing</span>
+                    break;
+                case OrderStatus.Shipped:
+                    <span class="badge badge-shipped px-3 py-2 fs-6 rounded-pill">Shipped</span>
+                    break;
+                case OrderStatus.Delivered:
+                    <span class="badge badge-delivered px-3 py-2 fs-6 rounded-pill">Delivered</span>
+                    break;
+                case OrderStatus.Cancelled:
+                    <span class="badge badge-cancelled px-3 py-2 fs-6 rounded-pill">Cancelled</span>
+                    break;
+            }
+        </div>
+        <small class="text-muted">Placed on @Model.CreatedAt.ToString("f")</small>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+        <i class="bi bi-arrow-left me-1"></i> Back to Orders
+    </a>
+</div>
+
+<!-- Status Updater Card -->
+<div class="card p-3 mb-4 shadow-sm bg-white border-start border-primary border-4">
+    <form asp-action="UpdateStatus" method="post" class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-repeat fs-4 text-primary"></i>
+            <span class="fw-bold text-dark">Change Order Status:</span>
+        </div>
+        <div class="d-flex gap-2">
+            <select name="status" class="form-select rounded-pill px-3">
+                <option value="@OrderStatus.Pending" selected="@(Model.Status == OrderStatus.Pending)">Gözləyir (Pending)</option>
+                <option value="@OrderStatus.Processing" selected="@(Model.Status == OrderStatus.Processing)">Hazırlanır (Processing)</option>
+                <option value="@OrderStatus.Shipped" selected="@(Model.Status == OrderStatus.Shipped)">Çatdırılmada (Shipped)</option>
+                <option value="@OrderStatus.Delivered" selected="@(Model.Status == OrderStatus.Delivered)">Təhvil verildi (Delivered)</option>
+                <option value="@OrderStatus.Cancelled" selected="@(Model.Status == OrderStatus.Cancelled)">Ləğv edildi (Cancelled)</option>
+            </select>
+            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold text-nowrap">
+                Update Status
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="row g-4">
+    <!-- Order Items Table -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold m-0 text-dark"><i class="bi bi-box-seam me-2"></i>Ordered Items</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">Item</th>
+                                <th>Product Name</th>
+                                <th>Unit Price</th>
+                                <th>Quantity</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>
+                                        <img src="~/@item.ProductThumbnail" alt="@item.ProductName" class="rounded border" style="width: 50px; height: 50px; object-fit: cover;" />
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-dark">@item.ProductName</div>
+                                        @if (item.Product != null)
+                                        {
+                                            <small class="text-muted">SKU: @item.Product.SKU</small>
+                                        }
+                                    </td>
+                                    <td>$@item.UnitPrice.ToString("N2")</td>
+                                    <td><strong>@item.Quantity</strong></td>
+                                    <td class="text-end fw-bold text-primary">$@item.TotalPrice.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="4" class="text-end fw-bold">Subtotal:</td>
+                                <td class="text-end fw-bold">$@Model.SubTotal.ToString("N2")</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end fw-bold">Shipping Fee:</td>
+                                <td class="text-end fw-bold">
+                                    @(Model.ShippingFee == 0 ? "FREE ($0.00)" : $"${Model.ShippingFee:N2}")
+                                </td>
+                            </tr>
+                            <tr class="table-active fs-5">
+                                <td colspan="4" class="text-end fw-bold text-dark">Grand Total:</td>
+                                <td class="text-end fw-bold text-primary">$@Model.TotalAmount.ToString("N2")</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.OrderNotes))
+        {
+            <div class="card shadow-sm p-3">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-chat-left-text me-2"></i>Customer Order Notes</h6>
+                <p class="text-muted m-0 p-3 bg-light rounded-3">@Model.OrderNotes</p>
+            </div>
+        }
+    </div>
+
+    <!-- Customer & Shipping Card -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold m-0 text-dark"><i class="bi bi-person me-2"></i>Customer Details</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Full Name:</strong> @Model.FirstName @Model.LastName</p>
+                <p class="mb-2"><strong>Email:</strong> <a href="mailto:@Model.Email">@Model.Email</a></p>
+                <p class="mb-2"><strong>Phone:</strong> <a href="tel:@Model.Phone">@Model.Phone</a></p>
+                @if (!string.IsNullOrEmpty(Model.CompanyName))
+                {
+                    <p class="mb-0"><strong>Company:</strong> @Model.CompanyName</p>
+                }
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold m-0 text-dark"><i class="bi bi-geo-alt me-2"></i>Delivery Address</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-1">@Model.AddressLine1</p>
+                @if (!string.IsNullOrEmpty(Model.AddressLine2))
+                {
+                    <p class="mb-1">@Model.AddressLine2</p>
+                }
+                <p class="mb-1"><strong>City:</strong> @Model.City</p>
+                <p class="mb-0"><strong>Postal Code:</strong> @Model.PostalCode</p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold m-0 text-dark"><i class="bi bi-credit-card me-2"></i>Payment Information</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Method:</strong> <span class="badge bg-secondary-subtle text-dark border">@Model.PaymentMethod</span></p>
+                <p class="mb-0"><strong>Status:</strong> <span class="badge bg-success">Confirmed</span></p>
+            </div>
+        </div>
+    </div>
+</div>

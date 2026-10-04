@@ -1,0 +1,140 @@
+﻿@model PetShopApp.ViewModels.BlogIndexVM
+@{
+    ViewData["Title"] = "Blog - Pet Care & Tips";
+}
+
+<section id="banner" class="py-3" style="background: #F9F3EC;">
+    <div class="container">
+        <div class="hero-content py-5 my-3">
+            <h2 class="display-1 mt-3 mb-0">Our <span class="text-primary">Blog</span></h2>
+            <nav class="breadcrumb">
+                <a class="breadcrumb-item nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                <span class="breadcrumb-item active" aria-current="page">Blog</span>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<div class="my-5 py-3">
+    <div class="container">
+        <!-- Search and Filter Bar -->
+        <div class="row mb-5 align-items-center justify-content-between">
+            <div class="col-md-7 mb-3 mb-md-0">
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-action="Index" class="btn @(string.IsNullOrEmpty(Model.CurrentCategory) ? "btn-dark" : "btn-outline-dark") rounded-pill px-4">All Posts</a>
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <a asp-action="Index" asp-route-category="@cat" class="btn @(Model.CurrentCategory == cat ? "btn-dark" : "btn-outline-dark") rounded-pill px-4">@cat</a>
+                    }
+                </div>
+            </div>
+            <div class="col-md-5">
+                <form asp-action="Index" method="get" class="d-flex">
+                    @if (!string.IsNullOrEmpty(Model.CurrentCategory))
+                    {
+                        <input type="hidden" name="category" value="@Model.CurrentCategory" />
+                    }
+                    <div class="input-group">
+                        <input type="text" name="search" value="@Model.SearchKeyword" class="form-control rounded-start-pill ps-3" placeholder="Search blog posts..." />
+                        <button class="btn btn-primary rounded-end-pill px-4" type="submit">
+                            <iconify-icon icon="mdi:magnify" class="fs-5"></iconify-icon>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (!Model.Posts.Any())
+        {
+            <div class="alert alert-info text-center py-5 rounded-4 shadow-sm my-5">
+                <h4>No blog posts found!</h4>
+                <p class="text-muted">Try searching with different keywords or clearing your category filters.</p>
+                <a asp-action="Index" class="btn btn-dark rounded-pill px-4 mt-2">View All Posts</a>
+            </div>
+        }
+        else
+        {
+            <div class="row entry-container">
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="entry-item col-md-4 my-4">
+                        <div class="z-1 position-absolute rounded-3 m-2 px-3 pt-1 bg-light shadow-sm">
+                            <h3 class="secondary-font text-primary m-0">@post.CreatedAt.ToString("dd")</h3>
+                            <p class="secondary-font fs-6 m-0">@post.CreatedAt.ToString("MMM")</p>
+                        </div>
+                        <div class="card position-relative border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                            <a asp-action="Detail" asp-route-id="@post.Id" asp-route-slug="@post.Slug">
+                                <img src="~/@post.ImageUrl" class="img-fluid rounded-4 w-100" style="height:250px; object-fit:cover;" alt="@post.Title">
+                            </a>
+                            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="text-muted small mb-2 d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-secondary-subtle text-dark px-3 py-1 rounded-pill">@post.CategoryName</span>
+                                        <span><iconify-icon icon="mdi:eye-outline"></iconify-icon> @post.ViewCount views</span>
+                                    </div>
+                                    <a asp-action="Detail" asp-route-id="@post.Id" asp-route-slug="@post.Slug" class="text-decoration-none">
+                                        <h4 class="card-title pt-2 pb-2 m-0 text-dark fw-bold" style="line-height: 1.4;">@post.Title</h4>
+                                    </a>
+                                    <div class="card-text">
+                                        <p class="blog-paragraph fs-6 text-muted mt-2">@post.ShortDescription</p>
+                                    </div>
+                                </div>
+                                <div class="pt-3 border-top mt-3 d-flex justify-content-between align-items-center">
+                                    <a asp-action="Detail" asp-route-id="@post.Id" asp-route-slug="@post.Slug" class="blog-read text-primary fw-bold text-decoration-none">
+                                        Read More &rarr;
+                                    </a>
+                                    <small class="text-muted"><iconify-icon icon="mdi:account"></iconify-icon> @post.AuthorName</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="navigation paging-navigation text-center mt-5" role="navigation">
+                    <div class="pagination loop-pagination d-flex justify-content-center align-items-center gap-2">
+                        @if (Model.CurrentPage > 1)
+                        {
+                            <a asp-action="Index" 
+                               asp-route-page="@(Model.CurrentPage - 1)" 
+                               asp-route-category="@Model.CurrentCategory" 
+                               asp-route-search="@Model.SearchKeyword" 
+                               class="pagination-arrow d-flex align-items-center mx-2 btn btn-outline-dark rounded-circle p-2">
+                                <iconify-icon icon="ic:baseline-keyboard-arrow-left" class="fs-4"></iconify-icon>
+                            </a>
+                        }
+
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            if (i == Model.CurrentPage)
+                            {
+                                <span aria-current="page" class="page-numbers btn btn-primary rounded-circle px-3 py-2 fw-bold current">@i</span>
+                            }
+                            else
+                            {
+                                <a asp-action="Index" 
+                                   asp-route-page="@i" 
+                                   asp-route-category="@Model.CurrentCategory" 
+                                   asp-route-search="@Model.SearchKeyword" 
+                                   class="page-numbers btn btn-outline-dark rounded-circle px-3 py-2">@i</a>
+                            }
+                        }
+
+                        @if (Model.CurrentPage < Model.TotalPages)
+                        {
+                            <a asp-action="Index" 
+                               asp-route-page="@(Model.CurrentPage + 1)" 
+                               asp-route-category="@Model.CurrentCategory" 
+                               asp-route-search="@Model.SearchKeyword" 
+                               class="pagination-arrow d-flex align-items-center mx-2 btn btn-outline-dark rounded-circle p-2">
+                                <iconify-icon icon="ic:baseline-keyboard-arrow-right" class="fs-4"></iconify-icon>
+                            </a>
+                        }
+                    </div>
+                </nav>
+            }
+        }
+    </div>
+</div>

@@ -1,0 +1,462 @@
+﻿@model PetShopApp.ViewModels.HomeIndexVM
+@{
+    ViewData["Title"] = "Best Pet Shop Store";
+}
+
+<!-- Hero Banner Slider -->
+<section id="banner" style="background: #F9F3EC;">
+  <div class="container">
+    <div class="swiper main-swiper">
+      <div class="swiper-wrapper">
+        @if (Model.Sliders.Any())
+        {
+          @foreach (var slider in Model.Sliders)
+          {
+            <div class="swiper-slide py-5">
+              <div class="row banner-content align-items-center">
+                <div class="img-wrapper col-md-5 text-center">
+                  <img src="~/images/@slider.ImageUrl" alt="@slider.Title" class="img-fluid" style="max-height: 450px;" />
+                </div>
+                <div class="content-wrapper col-md-7 p-5 mb-5">
+                  <div class="secondary-font text-primary text-uppercase mb-4 fw-bold">@slider.Subtitle</div>
+                  <h2 class="banner-title display-1 fw-normal">@slider.Title</h2>
+                  <a href="@slider.ButtonUrl" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">
+                    @slider.ButtonText
+                    <svg width="24" height="24" viewBox="0 0 24 24" class="mb-1">
+                      <use xlink:href="#arrow-right"></use>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+      <div class="swiper-pagination mb-5"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Section -->
+<section id="categories">
+  <div class="container my-3 py-5">
+    <div class="row my-5">
+      @foreach (var cat in Model.Categories)
+      {
+        <div class="col text-center">
+          <a asp-controller="Shop" asp-action="Index" asp-route-category="@cat.Slug" class="categories-item text-decoration-none">
+            <iconify-icon class="category-icon" icon="@(cat.IconClass ?? "ph:paw-print")"></iconify-icon>
+            <h5>@cat.Name</h5>
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Pet Clothing Products Carousel -->
+<section id="clothing" class="my-5 overflow-hidden">
+  <div class="container pb-5">
+    <div class="section-header d-md-flex justify-content-between align-items-center mb-3">
+      <h2 class="display-3 fw-normal">Pet Clothing</h2>
+      <div>
+        <a asp-controller="Shop" asp-action="Index" asp-route-category="clothing" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">
+          Shop Now
+          <svg width="24" height="24" viewBox="0 0 24 24" class="mb-1">
+            <use xlink:href="#arrow-right"></use>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="products-carousel swiper">
+      <div class="swiper-wrapper">
+        @foreach (var product in Model.ClothingProducts)
+        {
+          <div class="swiper-slide">
+            @if (product.OldPrice.HasValue && product.OldPrice > product.Price)
+            {
+              <div class="z-1 position-absolute rounded-3 m-3 px-3 border border-dark-subtle bg-white text-danger fw-bold">
+                Sale
+              </div>
+            }
+            else if (product.IsFeatured)
+            {
+              <div class="z-1 position-absolute rounded-3 m-3 px-3 border border-dark-subtle bg-white text-primary">
+                New
+              </div>
+            }
+
+            <div class="card position-relative h-100 border-0 shadow-sm rounded-4 p-3">
+              <a asp-controller="Shop" asp-action="Detail" asp-route-slug="@product.Slug" class="text-center d-block">
+                <img src="~/images/@product.MainImageUrl" class="img-fluid rounded-4" alt="@product.Name" style="height: 240px; width: 100%; object-fit: cover;">
+              </a>
+              <div class="card-body p-0 pt-3">
+                <a asp-controller="Shop" asp-action="Detail" asp-route-slug="@product.Slug" class="text-decoration-none text-dark">
+                  <h3 class="card-title fs-5 m-0 text-truncate">@product.Name</h3>
+                </a>
+
+                <div class="card-text mt-2">
+                  <span class="rating secondary-font d-flex align-items-center gap-1 mb-2">
+                    <iconify-icon icon="clarity:star-solid" class="text-primary"></iconify-icon>
+                    <span class="ms-1">@product.Rating.ToString("F1")</span>
+                    <span class="text-muted small">(@product.ReviewCount)</span>
+                  </span>
+
+                  <div class="d-flex align-items-baseline gap-2">
+                    @if (product.OldPrice.HasValue)
+                    {
+                      <span class="text-muted text-decoration-line-through fs-6">$@product.OldPrice.Value.ToString("F2")</span>
+                    }
+                    <h3 class="secondary-font text-primary fs-4 m-0">$@product.Price.ToString("F2")</h3>
+                  </div>
+
+                  <div class="d-flex flex-wrap mt-3">
+                    <a asp-controller="Cart" asp-action="AddToCart" asp-route-productId="@product.Id" class="btn-cart me-3 px-4 pt-3 pb-3 text-decoration-none">
+                      <h5 class="text-uppercase m-0 fs-6">Add to Cart</h5>
+                    </a>
+                    <a asp-controller="Shop" asp-action="AddToWishlist" asp-route-productId="@product.Id" class="btn-wishlist px-4 pt-3 text-decoration-none" title="Wishlist">
+                      <iconify-icon icon="fluent:heart-28-filled" class="fs-5"></iconify-icon>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pet Foodies Section (Isotope Filter) -->
+<section id="foodies" class="my-5">
+  <div class="container my-5 py-5">
+    <div class="section-header d-md-flex justify-content-between align-items-center mb-4">
+      <h2 class="display-3 fw-normal">Pet Foodies</h2>
+      <div class="mb-4 mb-md-0">
+        <p class="m-0">
+          <button class="filter-button me-4 active" data-filter="*">ALL</button>
+          <button class="filter-button me-4" data-filter=".cat">CAT</button>
+          <button class="filter-button me-4" data-filter=".dog">DOG</button>
+          <button class="filter-button me-4" data-filter=".bird">BIRD</button>
+        </p>
+      </div>
+      <div>
+        <a asp-controller="Shop" asp-action="Index" asp-route-category="foodies" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">
+          Shop Now
+          <svg width="24" height="24" viewBox="0 0 24 24" class="mb-1">
+            <use xlink:href="#arrow-right"></use>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="isotope-container row">
+      @foreach (var item in Model.FoodieProducts)
+      {
+        var filterClass = item.Category?.Slug switch
+        {
+            "cat-shop" => "cat",
+            "dog-shop" => "dog",
+            "bird-shop" => "bird",
+            _ => (item.Id % 2 == 0 ? "cat" : "dog")
+        };
+
+        <div class="item @filterClass col-md-4 col-lg-3 my-4">
+          <div class="card position-relative h-100 border-0 shadow-sm rounded-4 p-3">
+            @if (item.OldPrice.HasValue && item.OldPrice > item.Price)
+            {
+              <div class="z-1 position-absolute rounded-3 m-3 px-3 border border-dark-subtle bg-white text-danger fw-bold">
+                Sale
+              </div>
+            }
+            <a asp-controller="Shop" asp-action="Detail" asp-route-slug="@item.Slug" class="text-center d-block">
+              <img src="~/images/@item.MainImageUrl" class="img-fluid rounded-4" alt="@item.Name" style="height: 220px; width: 100%; object-fit: cover;">
+            </a>
+            <div class="card-body p-0 pt-3">
+              <a asp-controller="Shop" asp-action="Detail" asp-route-slug="@item.Slug" class="text-decoration-none text-dark">
+                <h3 class="card-title fs-5 m-0 text-truncate">@item.Name</h3>
+              </a>
+
+              <div class="card-text mt-2">
+                <span class="rating secondary-font d-flex align-items-center gap-1 mb-2">
+                  <iconify-icon icon="clarity:star-solid" class="text-primary"></iconify-icon>
+                  <span class="ms-1">@item.Rating.ToString("F1")</span>
+                </span>
+
+                <div class="d-flex align-items-baseline gap-2">
+                  @if (item.OldPrice.HasValue)
+                  {
+                    <span class="text-muted text-decoration-line-through fs-6">$@item.OldPrice.Value.ToString("F2")</span>
+                  }
+                  <h3 class="secondary-font text-primary fs-4 m-0">$@item.Price.ToString("F2")</h3>
+                </div>
+
+                <div class="d-flex flex-wrap mt-3">
+                  <a asp-controller="Cart" asp-action="AddToCart" asp-route-productId="@item.Id" class="btn-cart me-3 px-4 pt-3 pb-3 text-decoration-none">
+                    <h5 class="text-uppercase m-0 fs-6">Add to Cart</h5>
+                  </a>
+                  <a asp-controller="Shop" asp-action="AddToWishlist" asp-route-productId="@item.Id" class="btn-wishlist px-4 pt-3 text-decoration-none">
+                    <iconify-icon icon="fluent:heart-28-filled" class="fs-5"></iconify-icon>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Promotional Banner 2 -->
+<section id="banner-2" class="my-3" style="background: #F9F3EC;">
+  <div class="container">
+    <div class="row flex-row-reverse banner-content align-items-center">
+      <div class="img-wrapper col-12 col-md-6 text-center">
+        <img src="~/images/banner-img2.png" alt="Clearance sale" class="img-fluid" style="max-height: 400px;">
+      </div>
+      <div class="content-wrapper col-12 offset-md-1 col-md-5 p-5">
+        <div class="secondary-font text-primary text-uppercase mb-3 fs-4 fw-bold">Upto 40% off</div>
+        <h2 class="banner-title display-1 fw-normal">Clearance sale !!!</h2>
+        <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">
+          Shop Now
+          <svg width="24" height="24" viewBox="0 0 24 24" class="mb-1">
+            <use xlink:href="#arrow-right"></use>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section id="testimonial">
+  <div class="container my-5 py-5">
+    <div class="row">
+      <div class="offset-md-1 col-md-10">
+        <div class="swiper testimonial-swiper">
+          <div class="swiper-wrapper">
+            @foreach (var test in Model.Testimonials)
+            {
+              <div class="swiper-slide">
+                <div class="row align-items-center">
+                  <div class="col-md-2 text-center">
+                    <img src="~/images/@test.AvatarUrl" alt="@test.FullName" class="img-fluid rounded-circle border shadow-sm mb-3 mb-md-0" style="width: 100px; height: 100px; object-fit: cover;" />
+                  </div>
+                  <div class="col-md-10 p-4">
+                    <p class="testimonial-content fs-3 fst-italic text-secondary">"@test.Comment"</p>
+                    <div class="d-flex align-items-center gap-2 mt-3">
+                      <h5 class="text-black fw-bold mb-0">- @test.FullName</h5>
+                      <span class="badge bg-primary-subtle text-primary">@test.Role</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Best Selling Products Carousel -->
+<section id="bestselling" class="my-5 overflow-hidden">
+  <div class="container py-5 mb-5">
+    <div class="section-header d-md-flex justify-content-between align-items-center mb-3">
+      <h2 class="display-3 fw-normal">Best Selling Products</h2>
+      <div>
+        <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">
+          Shop Now
+          <svg width="24" height="24" viewBox="0 0 24 24" class="mb-1">
+            <use xlink:href="#arrow-right"></use>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="bestselling-swiper swiper">
+      <div class="swiper-wrapper">
+        @foreach (var product in Model.BestSellingProducts)
+        {
+          <div class="swiper-slide">
+            <div class="card position-relative h-100 border-0 shadow-sm rounded-4 p-3">
+              <a asp-controller="Shop" asp-action="Detail" asp-route-slug="@product.Slug" class="text-center d-block">
+                <img src="~/images/@product.MainImageUrl" class="img-fluid rounded-4" alt="@product.Name" style="height: 240px; width: 100%; object-fit: cover;">
+              </a>
+              <div class="card-body p-0 pt-3">
+                <a asp-controller="Shop" asp-action="Detail" asp-route-slug="@product.Slug" class="text-decoration-none text-dark">
+                  <h3 class="card-title fs-5 m-0 text-truncate">@product.Name</h3>
+                </a>
+
+                <div class="card-text mt-2">
+                  <span class="rating secondary-font d-flex align-items-center gap-1 mb-2">
+                    <iconify-icon icon="clarity:star-solid" class="text-primary"></iconify-icon>
+                    <span class="ms-1">@product.Rating.ToString("F1")</span>
+                    <span class="text-muted small">(@product.ReviewCount)</span>
+                  </span>
+
+                  <div class="d-flex align-items-baseline gap-2">
+                    @if (product.OldPrice.HasValue)
+                    {
+                      <span class="text-muted text-decoration-line-through fs-6">$@product.OldPrice.Value.ToString("F2")</span>
+                    }
+                    <h3 class="secondary-font text-primary fs-4 m-0">$@product.Price.ToString("F2")</h3>
+                  </div>
+
+                  <div class="d-flex flex-wrap mt-3">
+                    <a asp-controller="Cart" asp-action="AddToCart" asp-route-productId="@product.Id" class="btn-cart me-3 px-4 pt-3 pb-3 text-decoration-none">
+                      <h5 class="text-uppercase m-0 fs-6">Add to Cart</h5>
+                    </a>
+                    <a asp-controller="Shop" asp-action="AddToWishlist" asp-route-productId="@product.Id" class="btn-wishlist px-4 pt-3 text-decoration-none">
+                      <iconify-icon icon="fluent:heart-28-filled" class="fs-5"></iconify-icon>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Register / Special Discount Section -->
+<section id="register" style="background: url('/images/background-img.png') no-repeat center center; background-size: cover;">
+  <div class="container">
+    <div class="row my-5 py-5">
+      <div class="offset-md-3 col-md-6 my-5 bg-white bg-opacity-75 p-5 rounded-4 shadow-sm">
+        <h2 class="display-3 fw-normal text-center mb-4">Get 20% Off on <span class="text-primary">First Purchase</span></h2>
+        <form asp-controller="Account" asp-action="Register" method="get">
+          <div class="mb-3">
+            <input type="email" class="form-control form-control-lg" name="email" placeholder="Enter Your Email Address" required>
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-dark btn-lg rounded-1">Register it now</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Latest Blog Post Section -->
+<section id="latest-blog" class="my-5">
+  <div class="container py-5 my-5">
+    <div class="row mt-5">
+      <div class="section-header d-md-flex justify-content-between align-items-center mb-3">
+        <h2 class="display-3 fw-normal">Latest Blog Post</h2>
+        <div>
+          <a asp-controller="Blog" asp-action="Index" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">
+            Read All
+            <svg width="24" height="24" viewBox="0 0 24 24" class="mb-1">
+              <use xlink:href="#arrow-right"></use>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      @foreach (var blog in Model.LatestBlogs)
+      {
+        <div class="col-md-4 my-4 my-md-0">
+          <div class="z-1 position-absolute rounded-3 m-2 px-3 pt-1 bg-light border">
+            <h3 class="secondary-font text-primary m-0">@blog.CreatedAt.ToString("dd")</h3>
+            <p class="secondary-font fs-6 m-0 text-muted">@blog.CreatedAt.ToString("MMM")</p>
+          </div>
+          <div class="card position-relative border-0 shadow-sm rounded-4 overflow-hidden h-100">
+            <a asp-controller="Blog" asp-action="Detail" asp-route-slug="@blog.Slug">
+              <img src="~/images/@blog.ImageUrl" class="img-fluid rounded-top-4" alt="@blog.Title" style="height: 220px; width: 100%; object-fit: cover;">
+            </a>
+            <div class="card-body p-4">
+              <div class="badge bg-secondary-subtle text-secondary mb-2">@blog.CategoryName</div>
+              <a asp-controller="Blog" asp-action="Detail" asp-route-slug="@blog.Slug" class="text-decoration-none text-dark">
+                <h3 class="card-title fs-4 pt-1 pb-2 m-0 text-truncate">@blog.Title</h3>
+              </a>
+              <div class="card-text">
+                <p class="blog-paragraph fs-6 text-muted">@blog.ShortDescription</p>
+                <a asp-controller="Blog" asp-action="Detail" asp-route-slug="@blog.Slug" class="blog-read text-primary fw-bold text-uppercase">read more</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Services / Features Section -->
+<section id="service">
+  <div class="container py-5 my-5">
+    <div class="row g-md-5 pt-4">
+      <div class="col-md-3 my-3">
+        <div class="card border-0 text-center p-4 bg-light rounded-4 shadow-sm h-100">
+          <div>
+            <iconify-icon class="service-icon text-primary fs-1 mb-2" icon="la:shopping-cart"></iconify-icon>
+          </div>
+          <h3 class="card-title fs-4 py-2 m-0">Free Delivery</h3>
+          <div class="card-text">
+            <p class="blog-paragraph fs-6 text-muted">Free shipping on all orders over $50 with guaranteed arrival.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 my-3">
+        <div class="card border-0 text-center p-4 bg-light rounded-4 shadow-sm h-100">
+          <div>
+            <iconify-icon class="service-icon text-primary fs-1 mb-2" icon="la:user-check"></iconify-icon>
+          </div>
+          <h3 class="card-title fs-4 py-2 m-0">100% Secure Payment</h3>
+          <div class="card-text">
+            <p class="blog-paragraph fs-6 text-muted">Multiple encrypted payment gateways for total peace of mind.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 my-3">
+        <div class="card border-0 text-center p-4 bg-light rounded-4 shadow-sm h-100">
+          <div>
+            <iconify-icon class="service-icon text-primary fs-1 mb-2" icon="la:tag"></iconify-icon>
+          </div>
+          <h3 class="card-title fs-4 py-2 m-0">Daily Offers</h3>
+          <div class="card-text">
+            <p class="blog-paragraph fs-6 text-muted">Save up to 50% every single day with our clearance sales.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 my-3">
+        <div class="card border-0 text-center p-4 bg-light rounded-4 shadow-sm h-100">
+          <div>
+            <iconify-icon class="service-icon text-primary fs-1 mb-2" icon="la:award"></iconify-icon>
+          </div>
+          <h3 class="card-title fs-4 py-2 m-0">Quality Guarantee</h3>
+          <div class="card-text">
+            <p class="blog-paragraph fs-6 text-muted">Only certified organic nutrients and tested pet apparel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Instagram Feed Section -->
+<section id="insta" class="my-5">
+  <div class="row g-0 py-5">
+    @foreach (var post in Model.InstagramPosts)
+    {
+      <div class="col instagram-item text-center position-relative">
+        <div class="icon-overlay d-flex justify-content-center align-items-center position-absolute w-100 h-100">
+          <iconify-icon class="text-white fs-1" icon="la:instagram"></iconify-icon>
+        </div>
+        <a href="@post.PostUrl" target="_blank">
+          <img src="~/images/@post.ImageUrl" alt="insta" class="img-fluid rounded-3" style="width: 100%; height: 220px; object-fit: cover;">
+        </a>
+      </div>
+    }
+  </div>
+</section>

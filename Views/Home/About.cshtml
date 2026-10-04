@@ -1,0 +1,75 @@
+﻿@{
+    ViewData["Title"] = "About Us";
+}
+
+<section id="banner" class="py-3" style="background: #F9F3EC;">
+    <div class="container">
+        <div class="hero-content py-5 my-3">
+            <h2 class="display-1 mt-3 mb-0">About <span class="text-primary">Us</span></h2>
+            <nav class="breadcrumb">
+                <a class="breadcrumb-item nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                <span class="breadcrumb-item active" aria-current="page">About Us</span>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<div class="my-5 py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 my-4 pe-lg-5">
+                <span class="text-primary fw-bold text-uppercase ls-wide">Our Story</span>
+                <h2 class="display-4 fw-bold mt-2">How Waggy Started</h2>
+                <p class="text-secondary fs-5 mt-3">
+                    Founded with a passion for pets and animal well-being, Waggy Pet Shop started as a small local boutique. Today, we are proud to offer the highest quality foods, comfortable clothing, entertaining toys, and health essentials for pets across the region.
+                </p>
+                <p class="text-muted">
+                    We believe every pet deserves nutritious meals, a cozy place to sleep, and endless play. That's why our curated selection is vetted by veterinary standards and animal lovers alike.
+                </p>
+                <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-pill py-3 px-5 mt-3">
+                    Shop Now
+                    <svg width="24" height="24" viewBox="0 0 24 24" class="mb-1 ms-2">
+                        <use xlink:href="#arrow-right"></use>
+                    </svg>
+                </a>
+            </div>
+            <div class="col-md-6 my-4">
+                <div class="p-5 bg-light rounded-5 shadow-sm">
+                    <h3 class="fw-bold mb-4">Why Choose Us</h3>
+                    <ul class="list-unstyled d-flex flex-column gap-3 fs-5 text-secondary">
+                        <li class="d-flex align-items-center">
+                            <span class="badge bg-primary rounded-circle p-2 me-3"><iconify-icon icon="mdi:check"></iconify-icon></span> 100% Certified Organic & Nutritious Pet Foods
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <span class="badge bg-primary rounded-circle p-2 me-3"><iconify-icon icon="mdi:check"></iconify-icon></span> Premium Safe & Non-Toxic Toys for Dogs and Cats
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <span class="badge bg-primary rounded-circle p-2 me-3"><iconify-icon icon="mdi:check"></iconify-icon></span> Fast & Free Delivery on All Orders Over $50
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <span class="badge bg-primary rounded-circle p-2 me-3"><iconify-icon icon="mdi:check"></iconify-icon></span> 24/7 Dedicated Customer Service & Pet Guidance
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="my-5 pb-5">
+    <div class="container">
+        <div class="row align-items-center bg-light p-5 rounded-5">
+            <div class="col-md-6">
+                <h2 class="display-5 fw-bold text-dark">You can buy the best pet products from Waggy with confidence.</h2>
+            </div>
+            <div class="col-md-6">
+                <p class="text-secondary fs-5">
+                    We carefully inspect every item that enters our inventory. From organic dog biscuits to durable winter hoodies and chew-proof toys, our products are crafted to keep your best friends cheerful and lively.
+                </p>
+                <p class="text-muted">
+                    Join thousands of pet parents who rely on Waggy for daily feeding, seasonal grooming, and health wellness.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

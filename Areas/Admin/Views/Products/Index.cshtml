@@ -1,0 +1,168 @@
+﻿@model IEnumerable<PetShopApp.Models.Product>
+@{
+    ViewData["Title"] = "Manage Products";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+    string? search = ViewBag.Search;
+    int? categoryId = ViewBag.CategoryId;
+    var categories = ViewBag.Categories as List<PetShopApp.Models.Category>;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+        <h4 class="fw-bold text-dark m-0">Store Products</h4>
+        <small class="text-muted">Total: @ViewBag.TotalCount products in catalog</small>
+    </div>
+    <a asp-action="Create" class="btn btn-primary rounded-pill px-4">
+        <i class="bi bi-plus-lg me-1"></i> Add Product
+    </a>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="card shadow-sm p-3 mb-4 bg-white">
+    <form asp-action="Index" method="get" class="row g-3 align-items-center">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" name="search" value="@search" class="form-control border-start-0" placeholder="Search by name or SKU..." />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="categoryId" class="form-select">
+                <option value="">All Categories</option>
+                @if (categories != null)
+                {
+                    @foreach (var c in categories)
+                    {
+                        <option value="@c.Id" selected="@(categoryId == c.Id)">@c.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-dark rounded-pill px-4 flex-grow-1">Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Products Table -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 80px;">Image</th>
+                        <th>Product Info</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Badges</th>
+                        <th>Status</th>
+                        <th class="text-end" style="width: 150px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                No products found matching your search.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var p in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <img src="~/@p.MainImageUrl" alt="@p.Name" class="rounded border shadow-sm" style="width: 55px; height: 55px; object-fit: cover;" />
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">@p.Name</div>
+                                    <small class="text-muted">SKU: <code>@p.SKU</code></small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@(p.Category?.Name ?? "Uncategorized")</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-primary">$@p.Price.ToString("N2")</div>
+                                    @if (p.OldPrice.HasValue && p.OldPrice > p.Price)
+                                    {
+                                        <small class="text-muted text-decoration-line-through">$@p.OldPrice.Value.ToString("N2")</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (p.StockQuantity <= 0)
+                                    {
+                                        <span class="badge bg-danger rounded-pill px-2 py-1">Out of stock</span>
+                                    }
+                                    else if (p.StockQuantity <= 5)
+                                    {
+                                        <span class="badge bg-warning text-dark rounded-pill px-2 py-1">Low: @p.StockQuantity</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success rounded-pill px-2 py-1">@p.StockQuantity in stock</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @if (p.IsClothing) { <span class="badge bg-info-subtle text-info border">Clothing</span> }
+                                        @if (p.IsFoodie) { <span class="badge bg-warning-subtle text-warning-emphasis border">Foodie</span> }
+                                        @if (p.IsBestSeller) { <span class="badge bg-danger-subtle text-danger border">BestSeller</span> }
+                                        @if (p.IsFeatured) { <span class="badge bg-primary-subtle text-primary border">Featured</span> }
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (p.IsActive)
+                                    {
+                                        <span class="badge bg-success px-2 py-1 rounded-pill">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary px-2 py-1 rounded-pill">Inactive</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@p.Id" method="post" onsubmit="return confirm('Bu məhsulu silmək istədiyinizdən əminsiniz?');" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1)
+        {
+            <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center">
+                <small class="text-muted">Showing page @currentPage of @totalPages</small>
+                <div class="d-flex gap-1">
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <a asp-action="Index" 
+                           asp-route-page="@i" 
+                           asp-route-search="@search" 
+                           asp-route-categoryId="@categoryId" 
+                           class="btn btn-sm @(i == currentPage ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-circle px-3 py-1">
+                            @i
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

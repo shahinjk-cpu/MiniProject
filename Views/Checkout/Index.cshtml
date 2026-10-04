@@ -1,0 +1,183 @@
+﻿@model PetShopApp.ViewModels.CheckoutVM
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<!-- Banner / Breadcrumb -->
+<section id="banner" class="py-3" style="background: #F9F3EC;">
+  <div class="container">
+    <div class="hero-content py-5 my-3">
+      <h2 class="display-1 mt-3 mb-0">Checkout</h2>
+      <nav class="breadcrumb">
+        <a class="breadcrumb-item nav-link" asp-controller="Home" asp-action="Index">Home</a>
+        <a class="breadcrumb-item nav-link" asp-controller="Cart" asp-action="Index">Cart</a>
+        <span class="breadcrumb-item active" aria-current="page">Checkout</span>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<!-- Checkout Section -->
+<section class="shopify-cart checkout-wrap my-5 py-5">
+  <div class="container">
+    <form asp-action="PlaceOrder" method="post">
+      @Html.AntiForgeryToken()
+
+      <div class="row g-md-5">
+        <!-- Billing Details -->
+        <div class="col-lg-6">
+          <h2 class="text-dark pb-3 border-bottom fw-bold mb-4">Billing Details</h2>
+          
+          <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label asp-for="FirstName" class="form-label fw-bold">First Name *</label>
+              <input asp-for="FirstName" class="form-control p-3" placeholder="John" required />
+              <span asp-validation-for="FirstName" class="text-danger small"></span>
+            </div>
+
+            <div class="col-sm-6">
+              <label asp-for="LastName" class="form-label fw-bold">Last Name *</label>
+              <input asp-for="LastName" class="form-control p-3" placeholder="Doe" required />
+              <span asp-validation-for="LastName" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+              <label asp-for="CompanyName" class="form-label fw-bold">Company Name (Optional)</label>
+              <input asp-for="CompanyName" class="form-control p-3" placeholder="Company Inc." />
+            </div>
+
+            <div class="col-12">
+              <label asp-for="AddressLine1" class="form-label fw-bold">Street Address *</label>
+              <input asp-for="AddressLine1" class="form-control p-3 mb-2" placeholder="House number and street name" required />
+              <input asp-for="AddressLine2" class="form-control p-3" placeholder="Apartment, suite, unit etc. (optional)" />
+              <span asp-validation-for="AddressLine1" class="text-danger small"></span>
+            </div>
+
+            <div class="col-sm-6">
+              <label asp-for="City" class="form-label fw-bold">Town / City *</label>
+              <input asp-for="City" class="form-control p-3" placeholder="City" required />
+              <span asp-validation-for="City" class="text-danger small"></span>
+            </div>
+
+            <div class="col-sm-6">
+              <label asp-for="PostalCode" class="form-label fw-bold">Zip / Postal Code *</label>
+              <input asp-for="PostalCode" class="form-control p-3" placeholder="10001" required />
+              <span asp-validation-for="PostalCode" class="text-danger small"></span>
+            </div>
+
+            <div class="col-sm-6">
+              <label asp-for="Phone" class="form-label fw-bold">Phone *</label>
+              <input asp-for="Phone" type="tel" class="form-control p-3" placeholder="+1 234 567 890" required />
+              <span asp-validation-for="Phone" class="text-danger small"></span>
+            </div>
+
+            <div class="col-sm-6">
+              <label asp-for="Email" class="form-label fw-bold">Email Address *</label>
+              <input asp-for="Email" type="email" class="form-control p-3" placeholder="john@example.com" required />
+              <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 mt-4">
+              <label asp-for="OrderNotes" class="form-label fw-bold">Order Notes (Optional)</label>
+              <textarea asp-for="OrderNotes" class="form-control p-3" rows="3" placeholder="Notes about your order, e.g. special delivery instructions."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Summary & Payment -->
+        <div class="col-lg-6 mt-5 mt-lg-0">
+          <div class="bg-light p-4 rounded-4 shadow-sm">
+            <h2 class="text-dark pb-3 border-bottom fw-bold mb-4">Your Order</h2>
+
+            <!-- Items list -->
+            <div class="table-responsive mb-3">
+              <table class="table align-middle bg-transparent">
+                <thead>
+                  <tr class="border-bottom">
+                    <th scope="col" class="py-2">Product</th>
+                    <th scope="col" class="py-2 text-end">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach (var item in Model.Items)
+                  {
+                    <tr>
+                      <td class="py-2">
+                        <span class="fw-bold">@item.ProductName</span>
+                        <span class="text-muted small"> x @item.Quantity</span>
+                      </td>
+                      <td class="py-2 text-end fw-bold">
+                        $@item.TotalPrice.ToString("F2")
+                      </td>
+                    </tr>
+                  }
+                  <tr class="border-top">
+                    <th class="py-2">Subtotal</th>
+                    <td class="py-2 text-end fw-bold">$@Model.SubTotal.ToString("F2")</td>
+                  </tr>
+                  <tr>
+                    <th class="py-2">Shipping</th>
+                    <td class="py-2 text-end">
+                      @if (Model.ShippingFee == 0)
+                      {
+                        <span class="badge bg-success">FREE</span>
+                      }
+                      else
+                      {
+                        <span class="fw-bold">$@Model.ShippingFee.ToString("F2")</span>
+                      }
+                    </td>
+                  </tr>
+                  <tr class="border-top border-bottom">
+                    <th class="py-3 fs-5">Order Total</th>
+                    <td class="py-3 text-end text-primary fs-4 fw-bold">$@Model.TotalAmount.ToString("F2")</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="payment-methods mt-4 mb-4">
+              <h5 class="fw-bold mb-3">Payment Method</h5>
+              
+              <div class="form-check p-3 border rounded-3 mb-2 bg-white">
+                <input class="form-check-input ms-0 me-3" type="radio" asp-for="PaymentMethod" id="cashOnDelivery" value="CashOnDelivery" checked />
+                <label class="form-check-label fw-bold" for="cashOnDelivery">
+                  Cash on Delivery
+                  <small class="d-block text-muted fw-normal">Pay with cash when your pet supplies are delivered to your doorstep.</small>
+                </label>
+              </div>
+
+              <div class="form-check p-3 border rounded-3 mb-2 bg-white">
+                <input class="form-check-input ms-0 me-3" type="radio" asp-for="PaymentMethod" id="bankTransfer" value="BankTransfer" />
+                <label class="form-check-label fw-bold" for="bankTransfer">
+                  Direct Bank Transfer
+                  <small class="d-block text-muted fw-normal">Make payment directly into our bank account. Your order will ship once funds clear.</small>
+                </label>
+              </div>
+
+              <div class="form-check p-3 border rounded-3 mb-2 bg-white">
+                <input class="form-check-input ms-0 me-3" type="radio" asp-for="PaymentMethod" id="paypal" value="PayPal" />
+                <label class="form-check-label fw-bold" for="paypal">
+                  PayPal / Credit Card
+                  <small class="d-block text-muted fw-normal">Fast and secure payment with your credit/debit card or PayPal account.</small>
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-dark btn-lg w-100 py-3 text-uppercase fw-bold rounded-2">
+              Place Order Now
+            </button>
+
+            <div class="mt-3 text-center">
+              <small class="text-muted"><iconify-icon icon="la:lock"></iconify-icon> Encrypted 256-bit SSL transaction.</small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</section>

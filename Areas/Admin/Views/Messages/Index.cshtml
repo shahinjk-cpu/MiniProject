@@ -1,0 +1,105 @@
+﻿@model IEnumerable<PetShopApp.Models.ContactMessage>
+@{
+    ViewData["Title"] = "Customer Inquiries";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+    bool? unreadOnly = ViewBag.UnreadOnly;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+        <h4 class="fw-bold text-dark m-0">Customer Inquiries</h4>
+        <small class="text-muted">Total: @ViewBag.TotalCount messages</small>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-sm @(unreadOnly != true ? "btn-dark" : "btn-outline-dark") rounded-pill px-3">All Messages</a>
+        <a asp-action="Index" asp-route-unreadOnly="true" class="btn btn-sm @(unreadOnly == true ? "btn-warning" : "btn-outline-warning text-dark") rounded-pill px-3">Unread Only</a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 100px;">Status</th>
+                        <th>Sender</th>
+                        <th>Subject</th>
+                        <th>Date</th>
+                        <th class="text-end" style="width: 150px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                No messages found.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var m in Model)
+                        {
+                            <tr class="@(!m.IsRead ? "table-light fw-bold" : "")">
+                                <td>
+                                    @if (!m.IsRead)
+                                    {
+                                        <span class="badge bg-warning text-dark px-2 py-1 rounded-pill">Unread</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-muted border px-2 py-1 rounded-pill">Read</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="text-dark">@m.FullName</div>
+                                    <small class="text-muted fw-normal">@m.Email • @m.Phone</small>
+                                </td>
+                                <td>
+                                    <div class="text-dark">@m.Subject</div>
+                                    <small class="text-muted fw-normal text-truncate d-inline-block" style="max-width: 350px;">
+                                        @m.Message
+                                    </small>
+                                </td>
+                                <td class="text-muted small fw-normal">@m.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <a asp-action="Detail" asp-route-id="@m.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3" title="Read Message">
+                                            Read
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@m.Id" method="post" onsubmit="return confirm('Bu mesajı silmək istədiyinizdən əminsiniz?');" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center">
+                <small class="text-muted">Showing page @currentPage of @totalPages</small>
+                <div class="d-flex gap-1">
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <a asp-action="Index" 
+                           asp-route-page="@i" 
+                           asp-route-unreadOnly="@unreadOnly" 
+                           class="btn btn-sm @(i == currentPage ? "btn-primary fw-bold" : "btn-outline-secondary") rounded-circle px-3 py-1">
+                            @i
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
